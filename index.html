@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TW AppStack — App Portfolio</title>
+<style>
+/* =============================================
+   RESET & TOKENS
+   ============================================= */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --glass:        rgba(255,255,255,0.06);
+  --glass-hover:  rgba(255,255,255,0.10);
+  --border:       rgba(255,255,255,0.11);
+  --border-hi:    rgba(255,255,255,0.22);
+  --shadow:       0 8px 32px rgba(0,0,0,0.45);
+  --shadow-lg:    0 20px 60px rgba(0,0,0,0.6);
+  --blur:         blur(22px);
+  --radius:       18px;
+  --radius-sm:    10px;
+  --purple:       #7C3AED;
+  --blue:         #2563EB;
+  --text:         #f0f0f8;
+  --muted:        rgba(240,240,248,0.45);
+  --live-c:       #22c55e;
+  --prog-c:       #f59e0b;
+  --plan-c:       #6b7280;
+  --font:         'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+body {
+  font-family: var(--font);
+  background: #060518;
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* =============================================
+   ANIMATED BACKGROUND
+   ============================================= */
+.bg {
+  position: fixed; inset: 0; z-index: 0;
+  overflow: hidden; pointer-events: none;
+}
+.blob {
+  position: absolute; border-radius: 50%;
+  filter: blur(90px); opacity: 0.18;
+  animation: drift linear infinite alternate;
+}
+.b1 { width:700px;height:700px;background:#7C3AED;top:-250px;left:-150px;animation-duration:28s; }
+.b2 { width:550px;height:550px;background:#2563EB;bottom:-200px;right:-120px;animation-duration:22s;animation-delay:-12s; }
+.b3 { width:420px;height:420px;background:#6D28D9;top:42%;left:38%;animation-duration:34s;animation-delay:-7s; }
+.b4 { width:300px;height:300px;background:#1D4ED8;top:20%;right:20%;animation-duration:18s;animation-delay:-3s;opacity:0.10; }
+@keyframes drift {
+  0%   { transform: translate(0,0) scale(1); }
+  100% { transform: translate(70px,50px) scale(1.12); }
+}
+
+/* =============================================
+   LAYOUT WRAPPER
+   ============================================= */
+.page {
+  position: relative; z-index: 1;
+  max-width: 1440px; margin: 0 auto;
+  padding: 0 28px 80px;
+}
+
+/* =============================================
+   STICKY HEADER
+   ============================================= */
+header {
+  position: sticky; top: 0; z-index: 200;
+  background: rgba(6,5,24,0.82);
+  backdrop-filter: var(--blur);
+  -webkit-backdrop-filter: var(--blur);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 28px;
+  margin: 0 -28px 36px;
+}
+.header-inner {
+  max-width: 1440px; margin: 0 auto;
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+}
+.logo {
+  display: flex; align-items: center; gap: 11px;
+  text-decoration: none; color: var(--text);
+  flex: 1; min-width: 0;
+}
+.logo-mark {
+  width: 38px; height: 38px; flex-shrink: 0;
+  background: linear-gradient(135deg,var(--purple),var(--blue));
+  border-radius: 11px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.1rem; box-shadow: 0 4px 14px rgba(124,58,237,0.4);
+}
+.logo-text { font-size: 1.1rem; font-weight: 800; letter-spacing: -0.4px; white-space: nowrap; }
+.logo-sub  { font-size: 0.7rem; color: var(--muted); font-weight: 400; margin-top: 1px; }
+
+.stats-row { display: flex; gap: 6px; flex-wrap: wrap; }
+.stat-chip {
+  display: flex; align-items: center; gap: 6px;
+  padding: 5px 13px; border-radius: 30px;
+  font-size: 0.72rem; font-weight: 700;
+  background: var(--glass); border: 1px solid var(--border);
+  white-space: nowrap;
+}
+.dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+.dot-live { background: var(--live-c); box-shadow: 0 0 6px var(--live-c); }
+.dot-prog { background: var(--prog-c); box-shadow: 0 0 6px var(--prog-c); }
+.dot-plan { background: var(--plan-c); }
+
+.view-toggle {
+  display: flex; gap: 2px; padding: 3px;
+  background: var(--glass); border: 1px solid var(--border); border-radius: 11px;
+}
+.vbtn {
+  padding: 6px 15px; border-radius: 8px; border: none;
+  background: transparent; color: var(--muted);
+  font-size: 0.78rem; font-weight: 600; cursor: pointer;
+  transition: all 0.18s; white-space: nowrap;
+}
+.vbtn.active { background: rgba(124,58,237,0.28); color: #fff; border: 1px solid rgba(124,58,237,0.4); }
+
+.btn-add {
+  padding: 8px 20px;
+  background: linear-gradient(135deg,var(--purple),var(--blue));
+  border: none; border-radius: 10px; color: #fff;
+  font-size: 0.82rem; font-weight: 700; cursor: pointer;
+  transition: opacity 0.18s, transform 0.12s; white-space: nowrap;
+  box-shadow: 0 4px 14px rgba(124,58,237,0.35);
+}
+.btn-add:hover { opacity: 0.88; transform: translateY(-1px); }
+
+/* =============================================
+   GRID VIEW
+   ============================================= */
+#view-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+  gap: 22px;
+}
+
+/* =============================================
+   APP CARD
+   ============================================= */
+.app-card {
+  background: var(--glass);
+  backdrop-filter: var(--blur); -webkit-backdrop-filter: var(--blur);
+  border: 1px solid var(--border); border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  display: flex; flex-direction: column;
+  overflow: hidden;
+  transition: transform 0.22s, box-shadow 0.22s, border-color 0.22s;
+}
+.app-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--border-hi);
+}
+
+.card-ribbon { height: 4px; width: 100%; flex-shrink: 0; }
+
+.card-top {
+  padding: 16px 16px 10px;
+  display: flex; align-items: flex-start; gap: 12px;
+}
+.app-icon-wrap {
+  width: 46px; height: 46px; border-radius: 13px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.5rem;
+}
+.card-title-group { flex: 1; min-width: 0; }
+.card-name {
+  font-size: 0.98rem; font-weight: 800; line-height: 1.2;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.card-desc {
+  font-size: 0.72rem; color: var(--muted); line-height: 1.45; margin-top: 3px;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.card-top-right { display: flex; flex-direction: column; align-items: flex-end; gap: 5px; flex-shrink: 0; }
+.status-badge {
+  padding: 3px 9px; border-radius: 20px;
+  font-size: 0.62rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.6px;
+  white-space: nowrap;
+}
+.badge-live     { background:rgba(34,197,94,.13); color:var(--live-c); border:1px solid rgba(34,197,94,.3); }
+.badge-progress { background:rgba(245,158,11,.13); color:var(--prog-c); border:1px solid rgba(245,158,11,.3); }
+.badge-planned  { background:rgba(107,114,128,.13); color:#9ca3af;      border:1px solid rgba(107,114,128,.3); }
+.btn-del {
+  background: none; border: none; color: rgba(255,255,255,0.18);
+  cursor: pointer; font-size: 0.8rem; padding: 2px 4px;
+  transition: color 0.18s; line-height: 1;
+}
+.btn-del:hover { color: #ef4444; }
+
+/* IFRAME PREVIEW */
+.preview-shell {
+  margin: 2px 14px 10px;
+  height: 155px; overflow: hidden; position: relative;
+  border-radius: 11px; background: #08071a;
+  border: 1px solid rgba(255,255,255,0.07);
+  cursor: pointer;
+}
+.preview-shell:hover::after {
+  content: '↗ Open App';
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  background: rgba(0,0,0,0.55); font-size: 0.82rem; font-weight: 700;
+  color: #fff; border-radius: 10px; letter-spacing: 0.3px; z-index: 3;
+}
+.preview-shell.loaded:hover::after { content: '↗ Open App'; }
+.btn-load-preview {
+  padding: 7px 16px;
+  background: rgba(124,58,237,0.18); border: 1px solid rgba(124,58,237,0.35);
+  border-radius: 8px; color: rgba(200,180,255,0.9);
+  font-size: 0.73rem; font-weight: 700; cursor: pointer;
+  transition: background 0.18s, border-color 0.18s;
+  margin-top: 6px;
+}
+.btn-load-preview:hover { background: rgba(124,58,237,0.32); border-color: rgba(124,58,237,0.6); }
+.preview-ph {
+  position: absolute; inset: 0; z-index: 2;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 7px; color: var(--muted); font-size: 0.72rem;
+}
+.preview-ph .ph-icon { font-size: 2.2rem; opacity: 0.45; }
+.preview-shell iframe {
+  position: absolute; top: 0; left: 0;
+  width: 1440px; height: 900px;
+  transform: scale(0.24); transform-origin: top left;
+  border: none; pointer-events: none;
+}
+
+/* TECH TAGS */
+.card-tags { display: flex; flex-wrap: wrap; gap: 5px; padding: 0 14px 8px; }
+.tag {
+  padding: 2px 8px;
+  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.09);
+  border-radius: 5px; font-size: 0.63rem; color: var(--muted); font-weight: 600;
+}
+
+/* META ROW */
+.card-meta {
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  padding: 0 14px 10px; font-size: 0.67rem; color: var(--muted);
+}
+.meta-item { display: flex; align-items: center; gap: 4px; }
+
+/* NOTES */
+.card-notes { margin: 0 14px 10px; }
+.notes-lbl {
+  font-size: 0.62rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.7px; color: var(--muted); margin-bottom: 5px;
+}
+.notes-area {
+  width: 100%; min-height: 52px; resize: vertical;
+  background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 8px; padding: 8px 10px; color: var(--text);
+  font-size: 0.74rem; font-family: var(--font); line-height: 1.45;
+  transition: border-color 0.18s;
+}
+.notes-area:focus { outline: none; border-color: rgba(124,58,237,0.5); }
+.notes-area::placeholder { color: rgba(255,255,255,0.2); }
+
+/* CARD FOOTER */
+.card-foot { padding: 8px 14px 16px; margin-top: auto; }
+.btn-launch {
+  width: 100%; padding: 10px 14px;
+  border: none; border-radius: 10px; color: #fff;
+  font-size: 0.82rem; font-weight: 700; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  transition: opacity 0.18s, transform 0.12s; letter-spacing: 0.2px;
+}
+.btn-launch:hover { opacity: 0.82; transform: translateY(-1px); }
+
+/* =============================================
+   KANBAN VIEW
+   ============================================= */
+#view-kanban { display: none; gap: 20px; }
+#view-kanban.show {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.k-col {
+  background: var(--glass);
+  backdrop-filter: var(--blur); -webkit-backdrop-filter: var(--blur);
+  border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 18px; min-height: 460px;
+  transition: border-color 0.18s, background 0.18s;
+}
+.k-col.drag-over {
+  border-color: rgba(124,58,237,0.55);
+  background: rgba(124,58,237,0.06);
+}
+
+.k-col-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding-bottom: 14px; margin-bottom: 14px;
+  border-bottom: 1px solid var(--border);
+}
+.k-col-title {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 0.9rem; font-weight: 800;
+}
+.k-count {
+  background: rgba(255,255,255,0.09); border: 1px solid var(--border);
+  border-radius: 20px; padding: 2px 10px;
+  font-size: 0.68rem; font-weight: 800;
+}
+
+.k-card {
+  background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+  border-radius: 11px; padding: 13px 13px;
+  margin-bottom: 10px; cursor: grab;
+  display: flex; align-items: center; gap: 11px;
+  transition: background 0.18s, border-color 0.18s, transform 0.15s;
+}
+.k-card:hover { background: rgba(255,255,255,0.08); border-color: var(--border-hi); transform: translateX(3px); }
+.k-card:active { cursor: grabbing; }
+.k-card.dragging { opacity: 0.35; }
+
+.k-icon {
+  width: 38px; height: 38px; border-radius: 9px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.15rem;
+}
+.k-info { flex: 1; min-width: 0; }
+.k-name { font-size: 0.85rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.k-meta { font-size: 0.68rem; color: var(--muted); margin-top: 2px; }
+
+.k-launch {
+  background: none; border: 1px solid rgba(255,255,255,0.13);
+  border-radius: 7px; padding: 5px 10px;
+  color: var(--muted); font-size: 0.68rem; font-weight: 600;
+  cursor: pointer; transition: all 0.18s; white-space: nowrap; flex-shrink: 0;
+}
+.k-launch:hover { background: rgba(255,255,255,0.1); color: #fff; border-color: var(--border-hi); }
+
+.k-empty {
+  text-align: center; padding: 32px 16px;
+  color: var(--muted); font-size: 0.75rem;
+  border: 2px dashed rgba(255,255,255,0.07); border-radius: 10px; margin-top: 4px;
+}
+
+/* =============================================
+   MODAL
+   ============================================= */
+.overlay {
+  position: fixed; inset: 0; z-index: 500;
+  background: rgba(0,0,0,0.72);
+  backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);
+  display: none; align-items: center; justify-content: center; padding: 20px;
+}
+.overlay.open { display: flex; }
+
+.modal {
+  background: #0f0d28; border: 1px solid var(--border-hi);
+  border-radius: 22px; padding: 30px; width: 100%; max-width: 540px;
+  box-shadow: var(--shadow-lg);
+}
+.modal-head {
+  font-size: 1.1rem; font-weight: 800; margin-bottom: 22px;
+  display: flex; align-items: center; gap: 9px;
+}
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+.fg { display: flex; flex-direction: column; gap: 5px; }
+.fg.full { grid-column: 1 / -1; }
+.flbl {
+  font-size: 0.68rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.7px; color: var(--muted);
+}
+.finput, .fselect, .ftarea {
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.11);
+  border-radius: 9px; padding: 9px 12px; color: var(--text);
+  font-size: 0.82rem; font-family: var(--font); transition: border-color 0.18s;
+}
+.finput:focus, .fselect:focus, .ftarea:focus { outline: none; border-color: rgba(124,58,237,0.6); }
+.fselect option { background: #0f0d28; }
+.ftarea { resize: vertical; min-height: 72px; }
+.fcolor {
+  width: 44px; height: 40px; border-radius: 9px;
+  border: 1px solid rgba(255,255,255,0.11);
+  background: none; cursor: pointer; padding: 3px;
+}
+.modal-acts { display: flex; gap: 10px; justify-content: flex-end; margin-top: 22px; }
+.btn-cancel {
+  padding: 9px 20px; background: rgba(255,255,255,0.06);
+  border: 1px solid var(--border); border-radius: 10px;
+  color: var(--muted); font-size: 0.82rem; cursor: pointer;
+  transition: background 0.18s, color 0.18s;
+}
+.btn-cancel:hover { background: rgba(255,255,255,0.12); color: #fff; }
+.btn-save {
+  padding: 9px 24px;
+  background: linear-gradient(135deg,var(--purple),var(--blue));
+  border: none; border-radius: 10px; color: #fff;
+  font-size: 0.82rem; font-weight: 700; cursor: pointer;
+  transition: opacity 0.18s; box-shadow: 0 4px 14px rgba(124,58,237,0.35);
+}
+.btn-save:hover { opacity: 0.88; }
+
+/* =============================================
+   SCROLLBAR
+   ============================================= */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.13); border-radius: 4px; }
+
+/* =============================================
+   RESPONSIVE
+   ============================================= */
+@media (max-width: 980px) {
+  #view-kanban.show { grid-template-columns: 1fr; }
+  .form-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 640px) {
+  #view-grid { grid-template-columns: 1fr; }
+  .stats-row { display: none; }
+  .page { padding: 0 14px 60px; }
+  header { padding: 12px 14px; margin: 0 -14px 28px; }
+}
+</style>
+</head>
+<body>
+
+<!-- Background blobs -->
+<div class="bg">
+  <div class="blob b1"></div>
+  <div class="blob b2"></div>
+  <div class="blob b3"></div>
+  <div class="blob b4"></div>
+</div>
+
+<!-- Sticky header -->
+<header>
+  <div class="header-inner">
+    <a class="logo" href="#">
+      <div class="logo-mark">💻</div>
+      <div>
+        <div class="logo-text">TW AppStack</div>
+        <div class="logo-sub">Thomas Wong · Vibe-Coded Apps</div>
+      </div>
+    </a>
+
+    <div class="stats-row" id="statsRow"></div>
+
+    <div class="view-toggle">
+      <button class="vbtn active" id="vbtnGrid"    onclick="setView('grid')">⊞&nbsp;Grid</button>
+      <button class="vbtn"        id="vbtnKanban"  onclick="setView('kanban')">⊟&nbsp;Kanban</button>
+    </div>
+
+    <button class="btn-add" onclick="openModal()">＋ Add App</button>
+  </div>
+</header>
+
+<div class="page">
+
+  <!-- Grid View -->
+  <div id="view-grid"></div>
+
+  <!-- Kanban View -->
+  <div id="view-kanban">
+
+    <div class="k-col" id="kcol-live"
+      ondragover="dragOver(event,'live')" ondrop="drop(event,'live')" ondragleave="dragLeave(event)">
+      <div class="k-col-head">
+        <div class="k-col-title">
+          <span class="dot dot-live"></span> Live
+        </div>
+        <span class="k-count" id="kcount-live">0</span>
+      </div>
+      <div id="kitems-live"></div>
+    </div>
+
+    <div class="k-col" id="kcol-in-progress"
+      ondragover="dragOver(event,'in-progress')" ondrop="drop(event,'in-progress')" ondragleave="dragLeave(event)">
+      <div class="k-col-head">
+        <div class="k-col-title">
+          <span class="dot dot-prog"></span> In Progress
+        </div>
+        <span class="k-count" id="kcount-in-progress">0</span>
+      </div>
+      <div id="kitems-in-progress"></div>
+    </div>
+
+    <div class="k-col" id="kcol-planned"
+      ondragover="dragOver(event,'planned')" ondrop="drop(event,'planned')" ondragleave="dragLeave(event)">
+      <div class="k-col-head">
+        <div class="k-col-title">
+          <span class="dot dot-plan"></span> Planned
+        </div>
+        <span class="k-count" id="kcount-planned">0</span>
+      </div>
+      <div id="kitems-planned"></div>
+    </div>
+
+  </div><!-- /kanban -->
+
+</div><!-- /page -->
+
+<!-- Add App Modal -->
+<div class="overlay" id="modalOverlay">
+  <div class="modal">
+    <div class="modal-head">🚀 Add New App</div>
+    <div class="form-grid">
+      <div class="fg">
+        <label class="flbl">App Name *</label>
+        <input class="finput" id="fn" placeholder="e.g. Budget Tracker">
+      </div>
+      <div class="fg">
+        <label class="flbl">Icon (emoji)</label>
+        <input class="finput" id="fi" placeholder="💡" maxlength="4" style="font-size:1.3rem;text-align:center">
+      </div>
+      <div class="fg full">
+        <label class="flbl">Description</label>
+        <textarea class="ftarea" id="fd" placeholder="What does this app do?"></textarea>
+      </div>
+      <div class="fg">
+        <label class="flbl">Local Port</label>
+        <input class="finput" id="fp" placeholder="3460" type="number">
+      </div>
+      <div class="fg">
+        <label class="flbl">Status</label>
+        <select class="fselect" id="fs">
+          <option value="live">🟢 Live</option>
+          <option value="in-progress">🟡 In Progress</option>
+          <option value="planned" selected>⚫ Planned</option>
+        </select>
+      </div>
+      <div class="fg">
+        <label class="flbl">Accent Colour</label>
+        <input class="fcolor finput" id="fc" type="color" value="#7C3AED" style="padding:3px;">
+      </div>
+      <div class="fg">
+        <label class="flbl">Version</label>
+        <input class="finput" id="fv" placeholder="0.1">
+      </div>
+      <div class="fg full">
+        <label class="flbl">Tech Tags (comma-separated)</label>
+        <input class="finput" id="ft" placeholder="HTML/JS, Chart.js, AI">
+      </div>
+    </div>
+    <div class="modal-acts">
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn-save"   onclick="saveApp()">Add to Portfolio</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─────────────────────────────────────────
+//  DEFAULT APPS
+// ─────────────────────────────────────────
+const DEFAULTS = [
+  {
+    id: 'youtube-analytics',
+    name: 'YouTube Analytics',
+    description: 'Deep-dive dashboard built from 35,224 watched videos. Netflix-style playlist browsing, AI chat assistant, watch pattern insights, and playlist notes.',
+    port: 3459,
+    status: 'live',
+    color: '#FF4444',
+    icon: '📺',
+    tech: ['HTML/JS', 'Chart.js', 'Google Takeout', 'AI Chat', 'Netflix UI'],
+    version: '2.0',
+    updated: '2026-05-05',
+    notes: ''
+  },
+  {
+    id: 'finance-erp',
+    name: 'Personal Finance ERP',
+    description: 'Consolidated financial dashboard for income, rental properties, investments, and 10-year wealth projections. Built for wealth planner meetings.',
+    port: 3457,
+    status: 'live',
+    color: '#00C851',
+    icon: '💰',
+    tech: ['HTML/JS', 'Chart.js', 'Financial Planning', 'File Upload'],
+    version: '1.0',
+    updated: '2026-05-05',
+    notes: ''
+  },
+  {
+    id: 'fishfam',
+    name: 'FishFam',
+    description: 'Family fishing gamification app tracking catches, AU/NZ species, achievements and father-son bonding moments on the water.',
+    port: 3458,
+    status: 'live',
+    color: '#2196F3',
+    icon: '🎣',
+    tech: ['HTML/JS', 'Gamification', 'AU/NZ Species', 'Achievements'],
+    version: '1.0',
+    updated: '2026-04-20',
+    notes: ''
+  },
+  {
+    id: 'iran-tracker',
+    name: 'Iran Investment Tracker',
+    description: 'Investment portfolio tracking dashboard for monitoring positions, performance, and returns across holdings.',
+    port: 3456,
+    status: 'live',
+    color: '#FF8C00',
+    icon: '📈',
+    tech: ['HTML/JS', 'Chart.js', 'Investment', 'Portfolio'],
+    version: '1.0',
+    updated: '2026-04-15',
+    notes: ''
+  }
+];
+
+const STORE = 'tw_appstack_v1';
+
+// ─────────────────────────────────────────
+//  STATE
+// ─────────────────────────────────────────
+function loadApps() {
+  try {
+    const raw = localStorage.getItem(STORE);
+    if (!raw) return DEFAULTS.map(d => ({ ...d }));
+    const saved = JSON.parse(raw);
+    // Merge saved state over defaults (preserves notes/status changes)
+    const merged = DEFAULTS.map(def => {
+      const s = saved.find(x => x.id === def.id);
+      return s ? { ...def, ...s } : def;
+    });
+    // Append any custom (non-default) apps
+    const custom = saved.filter(s => !DEFAULTS.find(d => d.id === s.id));
+    return [...merged, ...custom];
+  } catch (e) {
+    return DEFAULTS.map(d => ({ ...d }));
+  }
+}
+
+let apps = loadApps();
+let dragId = null;
+
+function persist() { localStorage.setItem(STORE, JSON.stringify(apps)); }
+
+// ─────────────────────────────────────────
+//  RENDER
+// ─────────────────────────────────────────
+function render() {
+  renderStats();
+  renderGrid();
+  renderKanban();
+}
+
+function renderStats() {
+  const live = apps.filter(a => a.status === 'live').length;
+  const prog = apps.filter(a => a.status === 'in-progress').length;
+  const plan = apps.filter(a => a.status === 'planned').length;
+  document.getElementById('statsRow').innerHTML =
+    `<div class="stat-chip"><span class="dot dot-live"></span>${live} Live</div>` +
+    `<div class="stat-chip"><span class="dot dot-prog"></span>${prog} In Progress</div>` +
+    `<div class="stat-chip"><span class="dot dot-plan"></span>${plan} Planned</div>`;
+}
+
+function renderGrid() {
+  const el = document.getElementById('view-grid');
+  if (!apps.length) {
+    el.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:72px 20px;color:var(--muted)">
+      <div style="font-size:3rem;margin-bottom:12px">🚀</div>
+      <div style="font-size:1rem;font-weight:700;margin-bottom:6px">No apps yet</div>
+      <div style="font-size:0.8rem">Click "+ Add App" to register your first vibe-coded app</div>
+    </div>`;
+    return;
+  }
+  el.innerHTML = apps.map(a => cardHTML(a)).join('');
+}
+
+function cardHTML(a) {
+  const badgeClass = { live:'badge-live', 'in-progress':'badge-progress', planned:'badge-planned' }[a.status] || 'badge-planned';
+  const badgeText  = { live:'● Live', 'in-progress':'◐ In Progress', planned:'○ Planned' }[a.status] || '○ Planned';
+  const tags  = (a.tech || []).map(t => `<span class="tag">${escH(t)}</span>`).join('');
+  const port  = a.port ? `<span class="meta-item">🔌 :${a.port}</span>` : '';
+  return `
+<div class="app-card" id="card-${a.id}">
+  <div class="card-ribbon" style="background:linear-gradient(90deg,${a.color},${a.color}66)"></div>
+  <div class="card-top">
+    <div class="app-icon-wrap" style="background:${a.color}1a;border:1px solid ${a.color}33">${a.icon}</div>
+    <div class="card-title-group">
+      <div class="card-name">${escH(a.name)}</div>
+      <div class="card-desc">${escH(a.description)}</div>
+    </div>
+    <div class="card-top-right">
+      <span class="status-badge ${badgeClass}">${badgeText}</span>
+      <button class="btn-del" onclick="deleteApp('${a.id}')" title="Remove">✕</button>
+    </div>
+  </div>
+
+  <div class="preview-shell" id="pshell-${a.id}" onclick="previewClick('${a.id}',event)">
+    <div class="preview-ph" id="pph-${a.id}">
+      <span class="ph-icon">${a.icon}</span>
+      <span style="font-size:0.72rem;color:var(--muted)">${a.port ? `Port :${a.port}` : 'No port set'}</span>
+      ${a.port ? `<button class="btn-load-preview" onclick="loadPreview('${a.id}');event.stopPropagation()">👁 Load Preview</button>` : ''}
+    </div>
+  </div>
+
+  <div class="card-tags">${tags}</div>
+
+  <div class="card-meta">
+    <span class="meta-item">📦 v${escH(a.version || '1.0')}</span>
+    <span class="meta-item">🗓 ${escH(a.updated || '—')}</span>
+    ${port}
+  </div>
+
+  <div class="card-notes">
+    <div class="notes-lbl">💬 Notes &amp; Ideas</div>
+    <textarea class="notes-area" placeholder="Add notes, ideas, next features…"
+      oninput="saveNote('${a.id}',this.value)">${escH(a.notes || '')}</textarea>
+  </div>
+
+  <div class="card-foot">
+    <button class="btn-launch"
+      style="background:linear-gradient(135deg,${a.color}cc,${a.color}77)"
+      onclick="launchApp('${a.id}')">
+      🚀 Launch ${escH(a.name)}
+    </button>
+  </div>
+</div>`;
+}
+
+function loadPreview(id) {
+  const a     = apps.find(x => x.id === id);
+  const shell = document.getElementById('pshell-' + id);
+  const ph    = document.getElementById('pph-'    + id);
+  if (!a || !shell || !a.port) return;
+  // Show loading state
+  if (ph) ph.innerHTML = `<span class="ph-icon">${a.icon}</span><span style="font-size:0.72rem;color:var(--muted)">Loading…</span>`;
+  const iframe = document.createElement('iframe');
+  iframe.title = a.name + ' preview';
+  iframe.onload = () => {
+    if (ph) ph.style.display = 'none';
+    shell.classList.add('loaded');
+  };
+  iframe.onerror = () => {
+    if (ph) ph.innerHTML = `<span class="ph-icon">${a.icon}</span><span style="font-size:0.72rem;color:#ef4444">App not running on :${a.port}</span>`;
+  };
+  iframe.src = 'http://localhost:' + a.port;
+  shell.appendChild(iframe);
+}
+
+function previewClick(id, e) {
+  // If preview not loaded yet and click was not on the load-button, launch the app
+  const shell = document.getElementById('pshell-' + id);
+  if (shell && shell.classList.contains('loaded')) launchApp(id);
+}
+
+function renderKanban() {
+  ['live', 'in-progress', 'planned'].forEach(status => {
+    const list   = apps.filter(a => a.status === status);
+    const cEl    = document.getElementById('kitems-' + status);
+    const countEl = document.getElementById('kcount-' + status);
+    countEl.textContent = list.length;
+    if (!list.length) {
+      cEl.innerHTML = `<div class="k-empty">Drag apps here</div>`;
+      return;
+    }
+    cEl.innerHTML = list.map(a => `
+      <div class="k-card" draggable="true"
+        ondragstart="dragStart(event,'${a.id}')" ondragend="dragEnd(event)"
+        id="kcard-${a.id}">
+        <div class="k-icon" style="background:${a.color}1a;border:1px solid ${a.color}33">${a.icon}</div>
+        <div class="k-info">
+          <div class="k-name">${escH(a.name)}</div>
+          <div class="k-meta">v${escH(a.version||'1.0')} · ${escH(a.updated||'—')}</div>
+        </div>
+        ${a.port ? `<button class="k-launch" onclick="launchApp('${a.id}')">↗ Open</button>` : ''}
+      </div>
+    `).join('');
+  });
+}
+
+// ─────────────────────────────────────────
+//  ACTIONS
+// ─────────────────────────────────────────
+function launchApp(id) {
+  const a = apps.find(x => x.id === id);
+  if (a && a.port) window.open('http://localhost:' + a.port, '_blank');
+}
+
+function saveNote(id, val) {
+  const a = apps.find(x => x.id === id);
+  if (a) { a.notes = val; persist(); }
+}
+
+function deleteApp(id) {
+  if (!confirm('Remove this app from the portfolio?')) return;
+  apps = apps.filter(a => a.id !== id);
+  persist();
+  render();
+}
+
+// ─────────────────────────────────────────
+//  VIEW TOGGLE
+// ─────────────────────────────────────────
+function setView(v) {
+  const grid   = document.getElementById('view-grid');
+  const kanban = document.getElementById('view-kanban');
+  const btnG   = document.getElementById('vbtnGrid');
+  const btnK   = document.getElementById('vbtnKanban');
+  if (v === 'grid') {
+    grid.style.display = '';
+    kanban.classList.remove('show');
+    btnG.classList.add('active');
+    btnK.classList.remove('active');
+  } else {
+    grid.style.display = 'none';
+    kanban.classList.add('show');
+    btnG.classList.remove('active');
+    btnK.classList.add('active');
+  }
+}
+
+// ─────────────────────────────────────────
+//  DRAG & DROP (kanban)
+// ─────────────────────────────────────────
+function dragStart(e, id) {
+  dragId = id;
+  setTimeout(() => { const el = document.getElementById('kcard-'+id); if(el) el.classList.add('dragging'); }, 0);
+}
+function dragEnd(e) {
+  if (dragId) { const el = document.getElementById('kcard-'+dragId); if(el) el.classList.remove('dragging'); }
+  dragId = null;
+  document.querySelectorAll('.k-col').forEach(c => c.classList.remove('drag-over'));
+}
+function dragOver(e, status) {
+  e.preventDefault();
+  document.getElementById('kcol-'+status).classList.add('drag-over');
+}
+function dragLeave(e) { e.currentTarget.classList.remove('drag-over'); }
+function drop(e, newStatus) {
+  e.preventDefault();
+  document.querySelectorAll('.k-col').forEach(c => c.classList.remove('drag-over'));
+  if (!dragId) return;
+  const a = apps.find(x => x.id === dragId);
+  if (a && a.status !== newStatus) {
+    a.status  = newStatus;
+    a.updated = new Date().toISOString().slice(0, 10);
+    persist();
+    render();
+  }
+  dragId = null;
+}
+
+// ─────────────────────────────────────────
+//  ADD APP MODAL
+// ─────────────────────────────────────────
+function openModal() { document.getElementById('modalOverlay').classList.add('open'); }
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('open');
+  ['fn','fi','fd','fp','fv','ft'].forEach(id => { document.getElementById(id).value = ''; });
+  document.getElementById('fs').value = 'planned';
+  document.getElementById('fc').value = '#7C3AED';
+}
+document.getElementById('modalOverlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
+
+function saveApp() {
+  const name = document.getElementById('fn').value.trim();
+  if (!name) { document.getElementById('fn').focus(); return; }
+  const port = parseInt(document.getElementById('fp').value) || null;
+  const app = {
+    id:      name.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + Date.now(),
+    name,
+    description: document.getElementById('fd').value.trim(),
+    port,
+    status:  document.getElementById('fs').value,
+    color:   document.getElementById('fc').value,
+    icon:    document.getElementById('fi').value.trim() || '💡',
+    tech:    document.getElementById('ft').value.split(',').map(t => t.trim()).filter(Boolean),
+    version: document.getElementById('fv').value.trim() || '0.1',
+    updated: new Date().toISOString().slice(0, 10),
+    notes:   ''
+  };
+  apps.push(app);
+  persist();
+  render();
+  closeModal();
+}
+
+// ─────────────────────────────────────────
+//  HELPERS
+// ─────────────────────────────────────────
+function escH(s) {
+  return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ─────────────────────────────────────────
+//  INIT
+// ─────────────────────────────────────────
+render();
+</script>
+</body>
+</html>

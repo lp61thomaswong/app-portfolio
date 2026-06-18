@@ -1,0 +1,1278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Copy Smarter — AI-Powered Copy Trading Reviews</title>
+  <meta name="description" content="Don't just copy — copy smarter. AI-powered audits of copy traders on eToro, Myfxbook and MQL5. Get COPY, WATCH, or AVOID verdicts backed by data.">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --copy:    #16a34a;
+      --copy-bg: #dcfce7;
+      --watch:   #d97706;
+      --watch-bg:#fef3c7;
+      --avoid:   #dc2626;
+      --avoid-bg:#fee2e2;
+      --cta:     #2563eb;
+      --cta-hover:#1d4ed8;
+      --text:    #0f172a;
+      --muted:   #64748b;
+      --border:  #e2e8f0;
+      --card-bg: #ffffff;
+      --bg:      #f8fafc;
+      --nav-h:   64px;
+      --max-w:   1200px;
+      --radius:  10px;
+      --shadow:  0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+      --shadow-hover: 0 8px 24px rgba(0,0,0,.12);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: system-ui, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      font-size: 16px;
+    }
+
+    /* ── NAV ── */
+    .nav {
+      position: sticky; top: 0; z-index: 100;
+      background: #fff;
+      border-bottom: 1px solid var(--border);
+      height: var(--nav-h);
+      display: flex; align-items: center;
+    }
+    .nav-inner {
+      max-width: var(--max-w); margin: 0 auto; padding: 0 24px;
+      width: 100%; display: flex; align-items: center; justify-content: space-between;
+    }
+    .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .logo-mark {
+      width: 36px; height: 36px; border-radius: 8px;
+      background: linear-gradient(135deg, var(--copy), #0ea5e9);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; font-weight: 700; color: #fff;
+    }
+    .logo-text { font-weight: 700; font-size: 18px; color: var(--text); }
+    .logo-text span { color: var(--copy); }
+
+    .nav-links { display: flex; align-items: center; gap: 8px; }
+    .nav-links a {
+      text-decoration: none; color: var(--muted); font-size: 14px; font-weight: 500;
+      padding: 6px 12px; border-radius: 6px; transition: all .15s;
+    }
+    .nav-links a:hover { color: var(--text); background: var(--bg); }
+    .nav-sub-btn {
+      background: var(--cta); color: #fff !important;
+      padding: 8px 16px !important; border-radius: 8px !important;
+      font-weight: 600 !important;
+    }
+    .nav-sub-btn:hover { background: var(--cta-hover) !important; color: #fff !important; }
+
+    .nav-menu-btn {
+      display: none; background: none; border: none; cursor: pointer;
+      font-size: 22px; color: var(--text); padding: 4px;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      background: linear-gradient(160deg, #fff 0%, #f0fdf4 50%, #eff6ff 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 80px 24px 72px;
+      text-align: center;
+    }
+    .hero-eyebrow {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--copy-bg); color: var(--copy);
+      border-radius: 20px; padding: 6px 14px;
+      font-size: 13px; font-weight: 600; letter-spacing: .4px;
+      margin-bottom: 24px;
+    }
+    .hero h1 {
+      font-size: clamp(2.2rem, 5vw, 3.4rem);
+      font-weight: 800; line-height: 1.15;
+      letter-spacing: -.03em; max-width: 760px; margin: 0 auto 20px;
+    }
+    .hero h1 .accent { color: var(--copy); }
+    .hero p {
+      font-size: 1.125rem; color: var(--muted);
+      max-width: 560px; margin: 0 auto 36px; line-height: 1.7;
+    }
+    .hero-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 12px 24px; border-radius: 10px;
+      font-weight: 600; font-size: 15px; text-decoration: none;
+      transition: all .18s; cursor: pointer; border: none;
+    }
+    .btn-primary { background: var(--cta); color: #fff; }
+    .btn-primary:hover { background: var(--cta-hover); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(37,99,235,.35); }
+    .btn-outline { background: #fff; color: var(--text); border: 1.5px solid var(--border); }
+    .btn-outline:hover { border-color: var(--cta); color: var(--cta); transform: translateY(-1px); }
+
+    .hero-stats {
+      display: flex; justify-content: center; gap: 40px; flex-wrap: wrap;
+      margin-top: 52px; padding-top: 40px; border-top: 1px solid var(--border);
+    }
+    .hero-stat { text-align: center; }
+    .hero-stat .num { font-size: 2rem; font-weight: 800; color: var(--text); line-height: 1.1; }
+    .hero-stat .label { font-size: 13px; color: var(--muted); margin-top: 4px; }
+
+    /* ── SECTION WRAPPER ── */
+    .section { padding: 72px 24px; }
+    .section-inner { max-width: var(--max-w); margin: 0 auto; }
+    .section-header { margin-bottom: 36px; }
+    .section-header h2 { font-size: clamp(1.5rem, 3vw, 2rem); font-weight: 800; letter-spacing: -.02em; }
+    .section-header p { color: var(--muted); margin-top: 8px; font-size: 15px; }
+    .section-header-row { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+    .see-all { font-size: 14px; font-weight: 600; color: var(--cta); text-decoration: none; white-space: nowrap; }
+    .see-all:hover { text-decoration: underline; }
+
+    /* ── FILTER TABS ── */
+    .filter-row {
+      display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 32px;
+    }
+    .filter-btn {
+      padding: 7px 16px; border-radius: 20px; border: 1.5px solid var(--border);
+      background: #fff; color: var(--muted); font-size: 13px; font-weight: 600;
+      cursor: pointer; transition: all .15s;
+    }
+    .filter-btn:hover { border-color: var(--cta); color: var(--cta); }
+    .filter-btn.active { background: var(--cta); color: #fff; border-color: var(--cta); }
+
+    /* ── VIDEO GRID ── */
+    .video-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+
+    .video-card {
+      background: var(--card-bg); border-radius: var(--radius);
+      box-shadow: var(--shadow); border: 1px solid var(--border);
+      overflow: hidden; transition: all .2s; cursor: pointer; text-decoration: none; color: inherit;
+      display: flex; flex-direction: column;
+    }
+    .video-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-hover); border-color: transparent; }
+    .video-card.hidden { display: none; }
+
+    .video-thumb {
+      position: relative; width: 100%; aspect-ratio: 16/9;
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden;
+    }
+    .thumb-bg-ai-detective   { background: linear-gradient(135deg, #1e40af, #2563eb); }
+    .thumb-bg-leaderboard    { background: linear-gradient(135deg, #991b1b, #dc2626); }
+    .thumb-bg-copy-this      { background: linear-gradient(135deg, #14532d, #16a34a); }
+    .thumb-bg-beginner       { background: linear-gradient(135deg, #5b21b6, #7c3aed); }
+    .thumb-bg-ai-finance     { background: linear-gradient(135deg, #9a3412, #ea580c); }
+
+    .thumb-inner { text-align: center; padding: 16px; }
+    .thumb-icon { font-size: 2.6rem; display: block; margin-bottom: 8px; filter: drop-shadow(0 2px 4px rgba(0,0,0,.3)); }
+    .thumb-label { font-size: 11px; font-weight: 700; color: rgba(255,255,255,.75); letter-spacing: .8px; text-transform: uppercase; }
+
+    .play-overlay {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(0,0,0,.0); transition: background .2s;
+    }
+    .play-circle {
+      width: 52px; height: 52px; border-radius: 50%;
+      background: rgba(255,255,255,.9);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; opacity: 0; transition: opacity .2s; padding-left: 4px;
+    }
+    .video-card:hover .play-overlay { background: rgba(0,0,0,.25); }
+    .video-card:hover .play-circle { opacity: 1; }
+
+    .video-badge {
+      position: absolute; top: 10px; left: 10px;
+      background: rgba(0,0,0,.55); color: #fff;
+      font-size: 10px; font-weight: 700; letter-spacing: .5px;
+      padding: 3px 8px; border-radius: 4px; text-transform: uppercase;
+      backdrop-filter: blur(4px);
+    }
+
+    .video-body { padding: 16px 18px 20px; flex: 1; display: flex; flex-direction: column; }
+    .video-meta { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+    .video-type-tag {
+      font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 4px;
+      letter-spacing: .3px; text-transform: uppercase;
+    }
+    .tag-ai-detective  { background: #dbeafe; color: #1d4ed8; }
+    .tag-leaderboard   { background: #fee2e2; color: #b91c1c; }
+    .tag-copy-this     { background: #dcfce7; color: #15803d; }
+    .tag-beginner      { background: #ede9fe; color: #6d28d9; }
+    .tag-ai-finance    { background: #ffedd5; color: #c2410c; }
+
+    .video-date { font-size: 12px; color: var(--muted); }
+    .video-title { font-size: 15px; font-weight: 700; line-height: 1.4; margin-bottom: 8px; flex: 1; }
+    .video-desc { font-size: 13px; color: var(--muted); line-height: 1.5; }
+
+    /* ── SCORECARD SECTION ── */
+    #scorecards { background: #fff; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+
+    .scorecard-grid {
+      display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; margin-bottom: 40px;
+    }
+
+    .scorecard {
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 24px;
+      transition: box-shadow .2s;
+    }
+    .scorecard:hover { box-shadow: var(--shadow-hover); }
+
+    .sc-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 20px; gap: 12px; }
+    .sc-trader { }
+    .sc-name { font-size: 16px; font-weight: 700; }
+    .sc-platform {
+      display: inline-flex; align-items: center; gap: 4px;
+      font-size: 11px; color: var(--muted); background: var(--border);
+      padding: 2px 8px; border-radius: 4px; margin-top: 4px; font-weight: 600;
+    }
+    .verdict {
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+      min-width: 80px;
+    }
+    .verdict-badge {
+      padding: 5px 14px; border-radius: 6px;
+      font-size: 13px; font-weight: 800; letter-spacing: .5px;
+    }
+    .verdict-copy  { background: var(--copy-bg);  color: var(--copy);  }
+    .verdict-watch { background: var(--watch-bg); color: var(--watch); }
+    .verdict-avoid { background: var(--avoid-bg); color: var(--avoid); }
+    .verdict-score { font-size: 22px; font-weight: 800; }
+    .verdict-score-label { font-size: 10px; color: var(--muted); font-weight: 600; }
+
+    .score-bars { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+    .score-bar-row { display: grid; grid-template-columns: 130px 1fr 34px; align-items: center; gap: 10px; }
+    .score-bar-label { font-size: 12px; color: var(--muted); font-weight: 500; }
+    .score-bar-track { height: 7px; background: var(--border); border-radius: 4px; overflow: hidden; }
+    .score-bar-fill { height: 100%; border-radius: 4px; transition: width .6s ease; }
+    .fill-good   { background: var(--copy); }
+    .fill-mid    { background: var(--watch); }
+    .fill-bad    { background: var(--avoid); }
+    .score-bar-val { font-size: 12px; font-weight: 700; color: var(--text); text-align: right; }
+
+    .sc-footer { border-top: 1px solid var(--border); padding-top: 16px; display: flex; justify-content: space-between; align-items: center; }
+    .sc-link { font-size: 13px; font-weight: 600; color: var(--cta); text-decoration: none; }
+    .sc-link:hover { text-decoration: underline; }
+    .sc-disclaimer { font-size: 11px; color: var(--muted); }
+
+    /* Methodology accordion */
+    .method-accordion {
+      border: 1px solid var(--border); border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .method-toggle {
+      width: 100%; background: #fff; border: none; cursor: pointer;
+      padding: 16px 20px; display: flex; align-items: center; justify-content: space-between;
+      font-size: 14px; font-weight: 700; color: var(--text); text-align: left;
+    }
+    .method-toggle:hover { background: var(--bg); }
+    .method-toggle .arrow { transition: transform .25s; font-size: 16px; }
+    .method-toggle.open .arrow { transform: rotate(180deg); }
+    .method-body { display: none; padding: 0 20px 20px; background: #fff; }
+    .method-body.open { display: block; }
+
+    .method-table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 13px; }
+    .method-table th { text-align: left; padding: 8px 12px; background: var(--bg); font-weight: 700; font-size: 12px; letter-spacing: .4px; text-transform: uppercase; color: var(--muted); border-bottom: 1px solid var(--border); }
+    .method-table td { padding: 10px 12px; border-bottom: 1px solid var(--border); line-height: 1.5; vertical-align: top; }
+    .method-table tr:last-child td { border-bottom: none; }
+    .pts { font-weight: 700; color: var(--text); }
+
+    .verdict-scale { display: flex; gap: 12px; margin-top: 16px; flex-wrap: wrap; }
+    .vs-item { padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 700; }
+
+    /* ── CHALLENGE SECTION ── */
+    #challenge { }
+    .challenge-grid { display: grid; grid-template-columns: 1fr 340px; gap: 32px; align-items: start; }
+
+    .challenge-chart-wrap { background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; }
+    .challenge-chart-title { font-size: 14px; font-weight: 700; margin-bottom: 16px; color: var(--muted); }
+
+    .challenge-table-wrap { }
+    .challenge-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .challenge-table th { padding: 8px 12px; text-align: left; background: var(--bg); font-size: 11px; font-weight: 700; letter-spacing: .5px; text-transform: uppercase; color: var(--muted); border-bottom: 2px solid var(--border); border-top: 1px solid var(--border); }
+    .challenge-table td { padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    .challenge-table tr:last-child td { border-bottom: none; }
+    .challenge-table .month { font-weight: 700; }
+    .ret-pos { color: var(--copy); font-weight: 700; }
+    .ret-neg { color: var(--avoid); font-weight: 700; }
+
+    .challenge-disclaimer {
+      margin-top: 20px; background: #fffbeb; border: 1px solid #fde68a;
+      border-radius: 8px; padding: 12px 16px; font-size: 12px; color: #92400e;
+      line-height: 1.5;
+    }
+    .challenge-disclaimer strong { font-weight: 700; }
+
+    /* ── METHOD SECTION ── */
+    #method { background: #fff; border-top: 1px solid var(--border); }
+    .method-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: start; }
+
+    .method-steps { }
+    .step { display: flex; gap: 16px; margin-bottom: 28px; }
+    .step-num {
+      min-width: 36px; height: 36px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--copy), #0ea5e9);
+      color: #fff; font-size: 14px; font-weight: 800;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .step-body h4 { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+    .step-body p { font-size: 14px; color: var(--muted); line-height: 1.5; }
+
+    .sources-panel { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px; }
+    .sources-panel h3 { font-size: 15px; font-weight: 700; margin-bottom: 20px; }
+    .source-item { display: flex; align-items: center; gap: 14px; padding: 14px; background: #fff; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 10px; text-decoration: none; color: inherit; transition: box-shadow .15s; }
+    .source-item:hover { box-shadow: var(--shadow-hover); }
+    .source-icon { font-size: 28px; flex-shrink: 0; }
+    .source-name { font-size: 14px; font-weight: 700; }
+    .source-desc { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    .source-tag { display: inline-block; font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 3px; background: var(--copy-bg); color: var(--copy); margin-top: 4px; letter-spacing: .3px; }
+
+    /* ── ABOUT ── */
+    #about { border-top: 1px solid var(--border); }
+    .about-layout { display: grid; grid-template-columns: 1fr 420px; gap: 56px; align-items: center; }
+    .about-avatar {
+      width: 120px; height: 120px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--copy), #2563eb);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 48px; margin-bottom: 24px;
+    }
+    .about-text h2 { font-size: 2rem; font-weight: 800; margin-bottom: 16px; letter-spacing: -.02em; }
+    .about-text p { font-size: 15px; color: var(--muted); line-height: 1.7; margin-bottom: 14px; }
+
+    .signup-card { background: linear-gradient(135deg, #1e3a5f, #1d4ed8); border-radius: 16px; padding: 36px 32px; color: #fff; }
+    .signup-card h3 { font-size: 1.3rem; font-weight: 800; margin-bottom: 10px; }
+    .signup-card p { font-size: 14px; opacity: .8; margin-bottom: 24px; line-height: 1.6; }
+    .signup-form { display: flex; flex-direction: column; gap: 10px; }
+    .signup-input {
+      padding: 12px 16px; border-radius: 8px; border: none;
+      font-size: 14px; background: rgba(255,255,255,.12); color: #fff;
+      outline: none; transition: background .15s;
+    }
+    .signup-input::placeholder { color: rgba(255,255,255,.55); }
+    .signup-input:focus { background: rgba(255,255,255,.2); }
+    .signup-submit {
+      padding: 12px 16px; border-radius: 8px; border: none;
+      background: #fff; color: #1d4ed8; font-size: 14px; font-weight: 700;
+      cursor: pointer; transition: opacity .15s;
+    }
+    .signup-submit:hover { opacity: .9; }
+    .signup-note { font-size: 11px; opacity: .6; text-align: center; margin-top: 4px; }
+
+    /* ── FOOTER ── */
+    footer {
+      background: #0f172a; color: #94a3b8;
+      padding: 48px 24px 32px;
+    }
+    .footer-inner { max-width: var(--max-w); margin: 0 auto; }
+    .footer-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 32px; flex-wrap: wrap; margin-bottom: 36px; }
+    .footer-brand .logo-text { color: #e2e8f0; }
+    .footer-brand p { font-size: 13px; margin-top: 10px; max-width: 300px; line-height: 1.6; }
+    .footer-links { display: grid; grid-template-columns: repeat(2, 120px); gap: 8px 32px; }
+    .footer-links a { font-size: 13px; color: #94a3b8; text-decoration: none; transition: color .15s; }
+    .footer-links a:hover { color: #e2e8f0; }
+    .footer-bottom { border-top: 1px solid #1e293b; padding-top: 24px; }
+    .disclaimer {
+      font-size: 11px; line-height: 1.7; color: #64748b;
+      background: #0a1628; border: 1px solid #1e293b; border-radius: 8px;
+      padding: 14px 16px; margin-bottom: 20px;
+    }
+    .footer-copy { font-size: 12px; text-align: center; color: #475569; }
+
+    /* ── MOBILE ── */
+    @media (max-width: 980px) {
+      .nav-links { display: none; }
+      .nav-links.open { display: flex; flex-direction: column; position: absolute; top: var(--nav-h); left: 0; right: 0; background: #fff; border-bottom: 1px solid var(--border); padding: 12px; gap: 4px; }
+      .nav-menu-btn { display: block; }
+      .video-grid { grid-template-columns: repeat(2, 1fr); }
+      .scorecard-grid { grid-template-columns: 1fr; }
+      .challenge-grid { grid-template-columns: 1fr; }
+      .method-layout { grid-template-columns: 1fr; }
+      .about-layout { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 640px) {
+      .video-grid { grid-template-columns: 1fr; }
+      .hero { padding: 56px 20px 48px; }
+      .hero-stats { gap: 24px; }
+      .section { padding: 52px 20px; }
+      .footer-links { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════ NAV -->
+<nav class="nav" id="top-nav">
+  <div class="nav-inner">
+    <a href="#" class="logo">
+      <div class="logo-mark">CS</div>
+      <span class="logo-text">Copy<span>Smarter</span></span>
+    </a>
+    <div class="nav-links" id="nav-links">
+      <a href="#videos">Videos</a>
+      <a href="#scorecards">Scorecards</a>
+      <a href="#challenge">$500 Challenge</a>
+      <a href="#method">My Method</a>
+      <a href="#about">About</a>
+      <a href="#about" class="nav-sub-btn">&#9654; Subscribe</a>
+    </div>
+    <button class="nav-menu-btn" onclick="document.getElementById('nav-links').classList.toggle('open')" aria-label="Menu">☰</button>
+  </div>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════ HERO -->
+<section class="hero">
+  <div class="hero-eyebrow">
+    <span>🤖</span> AI-Powered Copy Trading Reviews
+  </div>
+  <h1>Don't just copy —<br><span class="accent">copy smarter.</span></h1>
+  <p>I run real trader data through AI to find hidden risks. Every review ends with one verdict: <strong>COPY</strong>, <strong>WATCH</strong>, or <strong>AVOID</strong> — backed by data, not hype.</p>
+  <div class="hero-btns">
+    <a href="#videos" class="btn btn-primary">▶ Watch Latest Videos</a>
+    <a href="#scorecards" class="btn btn-outline">📊 See Trader Scorecards</a>
+  </div>
+  <div class="hero-stats">
+    <div class="hero-stat">
+      <div class="num">47</div>
+      <div class="label">Traders Reviewed</div>
+    </div>
+    <div class="hero-stat">
+      <div class="num">12</div>
+      <div class="label">Videos Published</div>
+    </div>
+    <div class="hero-stat">
+      <div class="num">+29%</div>
+      <div class="label">$500 Challenge Return</div>
+    </div>
+    <div class="hero-stat">
+      <div class="num">3</div>
+      <div class="label">Data Sources</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════ VIDEOS -->
+<section class="section" id="videos">
+  <div class="section-inner">
+    <div class="section-header-row section-header">
+      <div>
+        <h2>Videos</h2>
+        <p>AI-powered trader audits, platform comparisons, and beginner guides.</p>
+      </div>
+      <a href="#" class="see-all">View all on YouTube →</a>
+    </div>
+
+    <div class="filter-row" id="filter-row">
+      <button class="filter-btn active" data-cat="all">All</button>
+      <button class="filter-btn" data-cat="ai-detective">AI Trade Detective</button>
+      <button class="filter-btn" data-cat="leaderboard">Leaderboard Lie</button>
+      <button class="filter-btn" data-cat="copy-this">Copy This, Not That</button>
+      <button class="filter-btn" data-cat="beginner">Beginner's Playbook</button>
+      <button class="filter-btn" data-cat="ai-finance">AI + Finance</button>
+    </div>
+
+    <div class="video-grid" id="video-grid">
+
+      <!-- Card 1 -->
+      <a class="video-card" data-cat="beginner" href="#" onclick="return false;">
+        <div class="video-thumb thumb-bg-beginner">
+          <div class="play-overlay"><div class="play-circle">▶</div></div>
+          <div class="thumb-inner">
+            <span class="thumb-icon">📚</span>
+            <div class="thumb-label">Beginner's Playbook</div>
+          </div>
+          <div class="video-badge">Beginner</div>
+        </div>
+        <div class="video-body">
+          <div class="video-meta">
+            <span class="video-type-tag tag-beginner">Beginner's Playbook</span>
+            <span class="video-date">Jan 14, 2026</span>
+          </div>
+          <div class="video-title">What is Copy Trading — and Why 80% of Copiers Lose Money</div>
+          <div class="video-desc">The uncomfortable truth about copy trading: most people fail not because of the traders they copy, but because they don't know what to check first.</div>
+        </div>
+      </a>
+
+      <!-- Card 2 -->
+      <a class="video-card" data-cat="beginner" href="#" onclick="return false;">
+        <div class="video-thumb thumb-bg-beginner">
+          <div class="play-overlay"><div class="play-circle">▶</div></div>
+          <div class="thumb-inner">
+            <span class="thumb-icon">✅</span>
+            <div class="thumb-label">Beginner's Playbook</div>
+          </div>
+          <div class="video-badge">Beginner</div>
+        </div>
+        <div class="video-body">
+          <div class="video-meta">
+            <span class="video-type-tag tag-beginner">Beginner's Playbook</span>
+            <span class="video-date">Jan 28, 2026</span>
+          </div>
+          <div class="video-title">The 5 Numbers You MUST Check Before You Copy Anyone</div>
+          <div class="video-desc">Win rate, max drawdown, profit factor, months active, and average trade duration — I explain exactly what "good" looks like for each.</div>
+        </div>
+      </a>
+
+      <!-- Card 3 -->
+      <a class="video-card" data-cat="beginner" href="#" onclick="return false;">
+        <div class="video-thumb thumb-bg-beginner">
+          <div class="play-overlay"><div class="play-circle">▶</div></div>
+          <div class="thumb-inner">
+            <span class="thumb-icon">🔍</span>
+            <div class="thumb-label">Beginner's Playbook</div>
+          </div>
+          <div class="video-badge">Beginner</div>
+        </div>
+        <div class="video-body">
+          <div class="video-meta">
+            <span class="video-type-tag tag-beginner">Beginner's Playbook</span>
+            <span class="video-date">Feb 11, 2026</span>
+          </div>
+          <div class="video-title">I Compared 4 Copy Trading Platforms — Here's the Verdict</div>
+          <div class="video-desc">eToro, Myfxbook, MQL5, and NAGA — I tested each one and scored them on data transparency, trader quality, and ease of use for beginners.</div>
+        </div>
+      </a>
+
+      <!-- Card 4 -->
+      <a class="video-card" data-cat="ai-finance" href="#" onclick="return false;">
+        <div class="video-thumb thumb-bg-ai-finance">
+          <div class="play-overlay"><div class="play-circle">▶</div></div>
+          <div class="thumb-inner">
+            <span class="thumb-icon">🤖</span>
+            <div class="thumb-label">AI + Finance</div>
+          </div>
+          <div class="video-badge">AI + Finance</div>
+        </div>
+        <div class="video-body">
+          <div class="video-meta">
+            <span class="video-type-tag tag-ai-finance">AI + Finance</span>
+            <span class="video-date">Feb 25, 2026</span>
+          </div>
+          <div class="video-title">How I Use AI to Score Copy Traders — My Full Method Explained</div>
+          <div class="video-desc">I paste real trader stats into Claude and ask it to find red flags. Here's the exact prompt I use and why AI catches things human eyes miss.</div>
+        </div>
+      </a>
+
+      <!-- Card 5 -->
+      <a class="video-card" data-cat="ai-detective" href="#" onclick="return false;">
+        <div class="video-thumb thumb-bg-ai-detective">
+          <div class="play-overlay"><div class="play-circle">▶</div></div>
+          <div class="thumb-inner">
+            <span class="thumb-icon">🕵️</span>
+            <div class="thumb-label">AI Trade Detective</div>
+          </div>
+          <div class="video-badge">AI Detective</div>
+        </div>
+        <div class="video-body">
+          <div class="video-meta">
+            <span class="video-type-tag tag-ai-detective">AI Trade Detective</span>
+            <span class="video-date">Mar 11, 2026</span>
+          </div>
+          <div class="video-title">AI Trade Detective #1: I Scored the Top 5 Myfxbook Traders</div>
+          <div class="video-desc">The leaderboard looks impressive. But when I ran each trader through my AI scoring system, two of the top 5 came back as AVOID. Here's why.</div>
+        </div>
+      </a>
+
+      <!-- Card 6 -->
+      <a class="video-card" data-cat="leaderboard" href="#" onclick="return false;">
+        <div class="video-thumb thumb-bg-leaderboard">
+          <div class="play-overlay"><div class="play-circle">▶</div></div>
+          <div class="thumb-inner">
+            <span class="thumb-icon">🚩</span>
+            <div class="thumb-label">Leaderboard Lie</div>
+          </div>
+          <div class="video-badge">Leaderboard Lie</div>
+        </div>
+        <div class="video-body">
+          <div class="video-meta">
+            <span class="video-type-tag tag-leaderboard">Leaderboard Lie</span>
+            <span class="video-date">Mar 25, 2026</span>
+          </div>
+          <div class="video-title">The Leaderboard Lie: High Gain Does NOT Mean Safe</div>
+          <div class="video-desc">A trader with +900% return and a 78% drawdown is not a hero — they're a time bomb. I break down how leaderboards hide the risk that destroys copiers.</div>
+        </div>
+      </a>
+
+      <!-- Card 7 -->
+      <a class="video-card" data-cat="copy-this" href="#" onclick="return false;">
+        <div class="video-thumb thumb-bg-copy-this">
+          <div class="play-overlay"><div class="play-circle">▶</div></div>
+          <div class="thumb-inner">
+            <span class="thumb-icon">💰</span>
+            <div class="thumb-label">Copy This, Not That</div>
+          </div>
+          <div class="video-badge">$500 Challenge</div>
+        </div>
+        <div class="video-body">
+          <div class="video-meta">
+            <span class="video-type-tag tag-copy-this">Copy This, Not That</span>
+            <span class="video-date">Apr 8, 2026</span>
+          </div>
+          <div class="video-title">$500 Challenge — Month 1: My Setup and Trader Picks</div>
+          <div class="video-desc">Starting with $500 on a real account. I show exactly which traders I picked, why I picked them, and what my AI analysis said about each one before I committed.</div>
+        </div>
+      </a>
+
+      <!-- Card 8 -->
+      <a class="video-card" data-cat="copy-this" href="#" onclick="return false;">
+        <div class="video-thumb thumb-bg-copy-this">
+          <div class="play-overlay"><div class="play-circle">▶</div></div>
+          <div class="thumb-inner">
+            <span class="thumb-icon">📈</span>
+            <div class="thumb-label">Copy This, Not That</div>
+          </div>
+          <div class="video-badge">Monthly Picks</div>
+        </div>
+        <div class="video-body">
+          <div class="video-meta">
+            <span class="video-type-tag tag-copy-this">Copy This, Not That</span>
+            <span class="video-date">Apr 29, 2026</span>
+          </div>
+          <div class="video-title">Best and Worst Copy Traders This Month — AI-Scored</div>
+          <div class="video-desc">Every month I run 20+ traders through my scoring system. This month's best pick returned 9.2% with near-zero drawdown. The worst had a pattern I've never seen before.</div>
+        </div>
+      </a>
+
+      <!-- Card 9 -->
+      <a class="video-card" data-cat="ai-detective" href="#" onclick="return false;">
+        <div class="video-thumb thumb-bg-ai-detective">
+          <div class="play-overlay"><div class="play-circle">▶</div></div>
+          <div class="thumb-inner">
+            <span class="thumb-icon">🕵️</span>
+            <div class="thumb-label">AI Trade Detective</div>
+          </div>
+          <div class="video-badge">AI Detective</div>
+        </div>
+        <div class="video-body">
+          <div class="video-meta">
+            <span class="video-type-tag tag-ai-detective">AI Trade Detective</span>
+            <span class="video-date">May 13, 2026</span>
+          </div>
+          <div class="video-title">AI Trade Detective #2: I Audited a Viral Copy Trader (15K Followers)</div>
+          <div class="video-desc">Someone with 15,000 copiers and a 3-year track record. Sounds great. My AI found a martingale pattern buried in months 8–11. Here's what that means for anyone copying them now.</div>
+        </div>
+      </a>
+
+      <!-- Card 10 -->
+      <a class="video-card" data-cat="copy-this" href="#" onclick="return false;">
+        <div class="video-thumb thumb-bg-copy-this">
+          <div class="play-overlay"><div class="play-circle">▶</div></div>
+          <div class="thumb-inner">
+            <span class="thumb-icon">💰</span>
+            <div class="thumb-label">Copy This, Not That</div>
+          </div>
+          <div class="video-badge">$500 Challenge</div>
+        </div>
+        <div class="video-body">
+          <div class="video-meta">
+            <span class="video-type-tag tag-copy-this">Copy This, Not That</span>
+            <span class="video-date">May 27, 2026</span>
+          </div>
+          <div class="video-title">$500 Challenge — Month 2 Results: One Bad Pick, One Big Win</div>
+          <div class="video-desc">Month 2 taught me something important: even a WATCH-rated trader can surprise you. Full breakdown of what went right, what went wrong, and how I adjusted the portfolio.</div>
+        </div>
+      </a>
+
+      <!-- Card 11 -->
+      <a class="video-card" data-cat="ai-detective" href="#" onclick="return false;">
+        <div class="video-thumb thumb-bg-ai-detective">
+          <div class="play-overlay"><div class="play-circle">▶</div></div>
+          <div class="thumb-inner">
+            <span class="thumb-icon">⚠️</span>
+            <div class="thumb-label">AI Trade Detective</div>
+          </div>
+          <div class="video-badge">Red Flags</div>
+        </div>
+        <div class="video-body">
+          <div class="video-meta">
+            <span class="video-type-tag tag-ai-detective">AI Trade Detective</span>
+            <span class="video-date">Jun 10, 2026</span>
+          </div>
+          <div class="video-title">7 Red Flags My AI Found in Losing Copy Traders</div>
+          <div class="video-desc">After auditing 47 traders, I've found these 7 patterns appear again and again in traders who eventually blow up. Number 4 is the hardest to spot without AI.</div>
+        </div>
+      </a>
+
+      <!-- Card 12 -->
+      <a class="video-card" data-cat="ai-finance" href="#" onclick="return false;">
+        <div class="video-thumb thumb-bg-ai-finance">
+          <div class="play-overlay"><div class="play-circle">▶</div></div>
+          <div class="thumb-inner">
+            <span class="thumb-icon">🚀</span>
+            <div class="thumb-label">AI + Finance</div>
+          </div>
+          <div class="video-badge">AI + Finance</div>
+        </div>
+        <div class="video-body">
+          <div class="video-meta">
+            <span class="video-type-tag tag-ai-finance">AI + Finance</span>
+            <span class="video-date">Jun 17, 2026</span>
+          </div>
+          <div class="video-title">AI Trading Agents Are Coming — What You Need to Know Now</div>
+          <div class="video-desc">Autonomous AI agents are being connected to live trading accounts. I explain what this means for copy traders — the opportunities, the risks, and what to watch.</div>
+        </div>
+      </a>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════ SCORECARDS -->
+<section class="section" id="scorecards">
+  <div class="section-inner">
+    <div class="section-header-row section-header">
+      <div>
+        <h2>Trader Scorecards</h2>
+        <p>AI-audited ratings across 5 risk categories. Updated monthly.</p>
+      </div>
+    </div>
+
+    <div class="scorecard-grid">
+
+      <!-- Scorecard 1 — COPY -->
+      <div class="scorecard">
+        <div class="sc-header">
+          <div class="sc-trader">
+            <div class="sc-name">TraderMax_FX</div>
+            <div class="sc-platform">📊 Myfxbook · Forex</div>
+          </div>
+          <div class="verdict">
+            <div class="verdict-badge verdict-copy">COPY</div>
+            <div class="verdict-score">87</div>
+            <div class="verdict-score-label">/ 100</div>
+          </div>
+        </div>
+        <div class="score-bars">
+          <div class="score-bar-row">
+            <div class="score-bar-label">Track Record</div>
+            <div class="score-bar-track"><div class="score-bar-fill fill-good" style="width:90%"></div></div>
+            <div class="score-bar-val">18/20</div>
+          </div>
+          <div class="score-bar-row">
+            <div class="score-bar-label">Risk &amp; Drawdown</div>
+            <div class="score-bar-track"><div class="score-bar-fill fill-good" style="width:93%"></div></div>
+            <div class="score-bar-val">28/30</div>
+          </div>
+          <div class="score-bar-row">
+            <div class="score-bar-label">Returns</div>
+            <div class="score-bar-track"><div class="score-bar-fill fill-good" style="width:85%"></div></div>
+            <div class="score-bar-val">17/20</div>
+          </div>
+          <div class="score-bar-row">
+            <div class="score-bar-label">Behaviour</div>
+            <div class="score-bar-track"><div class="score-bar-fill fill-good" style="width:87%"></div></div>
+            <div class="score-bar-val">13/15</div>
+          </div>
+          <div class="score-bar-row">
+            <div class="score-bar-label">Fit for Copiers</div>
+            <div class="score-bar-track"><div class="score-bar-fill fill-mid" style="width:73%"></div></div>
+            <div class="score-bar-val">11/15</div>
+          </div>
+        </div>
+        <div class="sc-footer">
+          <a href="#" class="sc-link" onclick="return false;">Watch the full review →</a>
+          <span class="sc-disclaimer">Not financial advice</span>
+        </div>
+      </div>
+
+      <!-- Scorecard 2 — WATCH -->
+      <div class="scorecard">
+        <div class="sc-header">
+          <div class="sc-trader">
+            <div class="sc-name">SteadyIncomeTrader</div>
+            <div class="sc-platform">📊 Myfxbook · Forex/Gold</div>
+          </div>
+          <div class="verdict">
+            <div class="verdict-badge verdict-watch">WATCH</div>
+            <div class="verdict-score">78</div>
+            <div class="verdict-score-label">/ 100</div>
+          </div>
+        </div>
+        <div class="score-bars">
+          <div class="score-bar-row">
+            <div class="score-bar-label">Track Record</div>
+            <div class="score-bar-track"><div class="score-bar-fill fill-good" style="width:80%"></div></div>
+            <div class="score-bar-val">16/20</div>
+          </div>
+          <div class="score-bar-row">
+            <div class="score-bar-label">Risk &amp; Drawdown</div>
+            <div class="score-bar-track"><div class="score-bar-fill fill-good" style="width:80%"></div></div>
+            <div class="score-bar-val">24/30</div>
+          </div>
+          <div class="score-bar-row">
+            <div class="score-bar-label">Returns</div>
+            <div class="score-bar-track"><div class="score-bar-fill fill-mid" style="width:75%"></div></div>
+            <div class="score-bar-val">15/20</div>
+          </div>
+          <div class="score-bar-row">
+            <div class="score-bar-label">Behaviour</div>
+            <div class="score-bar-track"><div class="score-bar-fill fill-good" style="width:80%"></div></div>
+            <div class="score-bar-val">12/15</div>
+          </div>
+          <div class="score-bar-row">
+            <div class="score-bar-label">Fit for Copiers</div>
+            <div class="score-bar-track"><div class="score-bar-fill fill-good" style="width:73%"></div></div>
+            <div class="score-bar-val">11/15</div>
+          </div>
+        </div>
+        <div class="sc-footer">
+          <a href="#" class="sc-link" onclick="return false;">Watch the full review →</a>
+          <span class="sc-disclaimer">Not financial advice</span>
+        </div>
+      </div>
+
+      <!-- Scorecard 3 — WATCH -->
+      <div class="scorecard">
+        <div class="sc-header">
+          <div class="sc-trader">
+            <div class="sc-name">CryptoKing2024</div>
+            <div class="sc-platform">🌐 eToro · Crypto</div>
+          </div>
+          <div class="verdict">
+            <div class="verdict-badge verdict-watch">WATCH</div>
+            <div class="verdict-score">62</div>
+            <div class="verdict-score-label">/ 100</div>
+          </div>
+        </div>
+        <div class="score-bars">
+          <div class="score-bar-row">
+            <div class="score-bar-label">Track Record</div>
+            <div class="score-bar-track"><div class="score-bar-fill fill-mid" style="width:60%"></div></div>
+            <div class="score-bar-val">12/20</div>
+          </div>
+          <div class="score-bar-row">
+            <div class="score-bar-label">Risk &amp; Drawdown</div>
+            <div class="score-bar-track"><div class="score-bar-fill fill-mid" style="width:60%"></div></div>
+            <div class="score-bar-val">18/30</div>
+          </div>
+          <div class="score-bar-row">
+            <div class="score-bar-label">Returns</div>
+            <div class="score-bar-track"><div class="score-bar-fill fill-mid" style="width:70%"></div></div>
+            <div class="score-bar-val">14/20</div>
+          </div>
+          <div class="score-bar-row">
+            <div class="score-bar-label">Behaviour</div>
+            <div class="score-bar-track"><div class="score-bar-fill fill-mid" style="width:67%"></div></div>
+            <div class="score-bar-val">10/15</div>
+          </div>
+          <div class="score-bar-row">
+            <div class="score-bar-label">Fit for Copiers</div>
+            <div class="score-bar-track"><div class="score-bar-fill fill-bad" style="width:53%"></div></div>
+            <div class="score-bar-val">8/15</div>
+          </div>
+        </div>
+        <div class="sc-footer">
+          <a href="#" class="sc-link" onclick="return false;">Watch the full review →</a>
+          <span class="sc-disclaimer">Not financial advice</span>
+        </div>
+      </div>
+
+      <!-- Scorecard 4 — AVOID -->
+      <div class="scorecard">
+        <div class="sc-header">
+          <div class="sc-trader">
+            <div class="sc-name">GoldRushPips</div>
+            <div class="sc-platform">⚙️ MQL5 · Gold/Commodities</div>
+          </div>
+          <div class="verdict">
+            <div class="verdict-badge verdict-avoid">AVOID</div>
+            <div class="verdict-score">41</div>
+            <div class="verdict-score-label">/ 100</div>
+          </div>
+        </div>
+        <div class="score-bars">
+          <div class="score-bar-row">
+            <div class="score-bar-label">Track Record</div>
+            <div class="score-bar-track"><div class="score-bar-fill fill-bad" style="width:40%"></div></div>
+            <div class="score-bar-val">8/20</div>
+          </div>
+          <div class="score-bar-row">
+            <div class="score-bar-label">Risk &amp; Drawdown</div>
+            <div class="score-bar-track"><div class="score-bar-fill fill-bad" style="width:33%"></div></div>
+            <div class="score-bar-val">10/30</div>
+          </div>
+          <div class="score-bar-row">
+            <div class="score-bar-label">Returns</div>
+            <div class="score-bar-track"><div class="score-bar-fill fill-bad" style="width:40%"></div></div>
+            <div class="score-bar-val">8/20</div>
+          </div>
+          <div class="score-bar-row">
+            <div class="score-bar-label">Behaviour</div>
+            <div class="score-bar-track"><div class="score-bar-fill fill-bad" style="width:40%"></div></div>
+            <div class="score-bar-val">6/15</div>
+          </div>
+          <div class="score-bar-row">
+            <div class="score-bar-label">Fit for Copiers</div>
+            <div class="score-bar-track"><div class="score-bar-fill fill-mid" style="width:60%"></div></div>
+            <div class="score-bar-val">9/15</div>
+          </div>
+        </div>
+        <div class="sc-footer">
+          <a href="#" class="sc-link" onclick="return false;">Watch the full review →</a>
+          <span class="sc-disclaimer">Not financial advice</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Methodology accordion -->
+    <div class="method-accordion">
+      <button class="method-toggle" onclick="toggleMethod(this)" aria-expanded="false">
+        <span>📋 How I Score Traders — My 5-Category System</span>
+        <span class="arrow">▼</span>
+      </button>
+      <div class="method-body" id="method-body">
+        <table class="method-table">
+          <thead>
+            <tr>
+              <th>Category</th>
+              <th>What I Check</th>
+              <th>Max</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Track Record</strong></td>
+              <td>How long have they been trading? 12+ months of verified history = good</td>
+              <td><span class="pts">20 pts</span></td>
+            </tr>
+            <tr>
+              <td><strong>Risk &amp; Drawdown</strong></td>
+              <td>Did they ever lose more than 20% at once? Lower drawdown = safer. This carries the most weight.</td>
+              <td><span class="pts">30 pts</span></td>
+            </tr>
+            <tr>
+              <td><strong>Returns</strong></td>
+              <td>Consistent monthly gains? Profit factor above 1.3? Smooth equity curve?</td>
+              <td><span class="pts">20 pts</span></td>
+            </tr>
+            <tr>
+              <td><strong>Behaviour</strong></td>
+              <td>Any martingale, revenge trading, or grid patterns? These blow up accounts.</td>
+              <td><span class="pts">15 pts</span></td>
+            </tr>
+            <tr>
+              <td><strong>Fit for Copiers</strong></td>
+              <td>Is their style safe for a small account? Minimum copy amount, trade frequency, lot sizes.</td>
+              <td><span class="pts">15 pts</span></td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="verdict-scale">
+          <div class="vs-item" style="background:var(--copy-bg);color:var(--copy)">80–100 = COPY</div>
+          <div class="vs-item" style="background:var(--watch-bg);color:var(--watch)">60–79 = WATCH</div>
+          <div class="vs-item" style="background:var(--avoid-bg);color:var(--avoid)">Under 60 = AVOID</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════ $500 CHALLENGE -->
+<section class="section" id="challenge">
+  <div class="section-inner">
+    <div class="section-header">
+      <h2>$500 Challenge</h2>
+      <p>Starting with a real $500 account. Every month I show the full results — no cherry-picking.</p>
+    </div>
+
+    <div class="challenge-grid">
+      <div>
+        <div class="challenge-chart-wrap">
+          <div class="challenge-chart-title">Portfolio Balance Over Time</div>
+          <canvas id="challengeChart" height="240"></canvas>
+        </div>
+      </div>
+      <div class="challenge-table-wrap">
+        <table class="challenge-table">
+          <thead>
+            <tr>
+              <th>Month</th>
+              <th>End Balance</th>
+              <th>Return</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="month">Feb 2026 <span style="font-size:11px;color:var(--muted);font-weight:400">(Start)</span></td>
+              <td>$500.00</td>
+              <td>—</td>
+            </tr>
+            <tr>
+              <td class="month">Mar 2026</td>
+              <td>$527.00</td>
+              <td class="ret-pos">+5.4%</td>
+            </tr>
+            <tr>
+              <td class="month">Apr 2026</td>
+              <td>$518.04</td>
+              <td class="ret-neg">−1.7%</td>
+            </tr>
+            <tr>
+              <td class="month">May 2026</td>
+              <td>$561.03</td>
+              <td class="ret-pos">+8.3%</td>
+            </tr>
+            <tr>
+              <td class="month">Jun 2026</td>
+              <td>$589.08</td>
+              <td class="ret-pos">+5.0%</td>
+            </tr>
+            <tr>
+              <td class="month" style="color:var(--copy)">Jul 2026 <span style="font-size:11px;color:var(--muted)">(Running)</span></td>
+              <td style="color:var(--copy);font-weight:700">$624.00</td>
+              <td class="ret-pos">+5.9%</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="challenge-disclaimer">
+          <strong>⚠️ Important:</strong> This is a real money challenge for education and content purposes only. Past returns do not guarantee future results. <strong>This is not financial advice.</strong> All trading carries risk of loss.
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════ MY METHOD -->
+<section class="section" id="method">
+  <div class="section-inner">
+    <div class="section-header">
+      <h2>How I Make Each Video</h2>
+      <p>Six repeatable steps from finding a trader to publishing the review.</p>
+    </div>
+
+    <div class="method-layout">
+      <div class="method-steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <h4>Pick a trader</h4>
+            <p>I find candidates on Myfxbook, MQL5, or eToro — ones that look popular, viral, or suspiciously good. Controversy drives discovery.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <h4>Get their stats</h4>
+            <p>Win rate, max drawdown, profit factor, monthly return history, trade duration. Myfxbook and MQL5 let me export full trade history to CSV.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <h4>Run it through AI</h4>
+            <p>I paste the stats into Claude and ask it to identify red flags — martingale patterns, drawdown spikes, suspicious win streaks, behaviour changes over time.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <h4>Score them</h4>
+            <p>I apply the 5-category framework: Track Record (20), Risk (30), Returns (20), Behaviour (15), Fit (15). Anything under 60 is an AVOID.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">5</div>
+          <div class="step-body">
+            <h4>Record the video</h4>
+            <p>I screen-record the stats, walk through the AI output live, and give my verdict. I show my reasoning — no mystery, no black box.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">6</div>
+          <div class="step-body">
+            <h4>Post and clip</h4>
+            <p>Full video on YouTube, plus 2–3 Shorts cut from the most surprising moments. The COPY/WATCH/AVOID reveal always makes a great Short.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="sources-panel">
+        <h3>Where I Find Traders</h3>
+        <a class="source-item" href="https://www.myfxbook.com" target="_blank" rel="noopener">
+          <span class="source-icon">📊</span>
+          <div>
+            <div class="source-name">Myfxbook</div>
+            <div class="source-desc">Free. Full trade history, drawdown charts, profit factor. CSV export available.</div>
+            <span class="source-tag">FREE</span>
+          </div>
+        </a>
+        <a class="source-item" href="https://www.mql5.com/en/signals" target="_blank" rel="noopener">
+          <span class="source-icon">⚙️</span>
+          <div>
+            <div class="source-name">MQL5 Signals</div>
+            <div class="source-desc">MetaTrader marketplace with thousands of signal providers and full verified stats.</div>
+            <span class="source-tag">FREE</span>
+          </div>
+        </a>
+        <a class="source-item" href="https://www.etoro.com" target="_blank" rel="noopener">
+          <span class="source-icon">🌐</span>
+          <div>
+            <div class="source-name">eToro</div>
+            <div class="source-desc">Mainstream copy trading platform. Easy to find popular traders. Good for beginners.</div>
+            <span class="source-tag">FREE TO BROWSE</span>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════ ABOUT -->
+<section class="section" id="about">
+  <div class="section-inner">
+    <div class="about-layout">
+      <div class="about-text">
+        <div class="about-avatar">👩‍💻</div>
+        <h2>Using AI to cut through the noise in copy trading.</h2>
+        <p>Most copy trading content shows you the wins and hides the risk. I do the opposite — I use AI to find the red flags that human eyes miss, then tell you exactly what I found.</p>
+        <p>Every trader I review gets the same 5-category audit. No favourites, no sponsorships influencing verdicts, no promises of guaranteed returns.</p>
+        <p>My angle: if an AI model can find a martingale pattern in 47 months of trade data in 30 seconds, there's no excuse for copying someone blind.</p>
+        <div style="margin-top:24px;font-size:13px;color:var(--muted);background:var(--bg);padding:14px 16px;border-radius:8px;border:1px solid var(--border);line-height:1.6;">
+          <strong>Disclaimer:</strong> Everything on this channel and site is for educational purposes only. Nothing here is financial advice. All trading carries risk of loss. Always do your own research before copying any trader.
+        </div>
+      </div>
+
+      <div class="signup-card">
+        <h3>Get New Reviews First</h3>
+        <p>Join the list and I'll email you when a new AI audit drops — before it goes on YouTube.</p>
+        <form class="signup-form" onsubmit="handleSignup(event)">
+          <input type="text" class="signup-input" placeholder="Your first name" required>
+          <input type="email" class="signup-input" placeholder="Your email address" required>
+          <button type="submit" class="signup-submit">Send Me New Reviews →</button>
+        </form>
+        <p class="signup-note">No spam. Unsubscribe any time. Not financial advice.</p>
+        <div id="signup-confirm" style="display:none;margin-top:12px;text-align:center;background:rgba(255,255,255,.15);border-radius:8px;padding:12px;font-size:14px;font-weight:600;">
+          ✅ You're on the list!
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════ FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <div class="logo">
+          <div class="logo-mark">CS</div>
+          <span class="logo-text">Copy<span style="color:var(--copy)">Smarter</span></span>
+        </div>
+        <p style="margin-top:10px;">AI-powered copy trading reviews. COPY, WATCH, or AVOID — backed by data.</p>
+      </div>
+      <div>
+        <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#475569;margin-bottom:12px;">Quick Links</div>
+        <div class="footer-links">
+          <a href="#videos">Videos</a>
+          <a href="#scorecards">Scorecards</a>
+          <a href="#challenge">$500 Challenge</a>
+          <a href="#method">My Method</a>
+          <a href="#about">About</a>
+          <a href="https://www.myfxbook.com" target="_blank" rel="noopener">Myfxbook</a>
+          <a href="https://www.mql5.com/en/signals" target="_blank" rel="noopener">MQL5</a>
+          <a href="https://www.etoro.com" target="_blank" rel="noopener">eToro</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="disclaimer">
+        <strong>⚠️ Important Disclaimer:</strong> This website and associated YouTube channel are for educational and entertainment purposes only. Nothing published here constitutes financial advice, investment advice, trading advice, or any other form of advice. The $500 Challenge is a real-money experiment documented for educational content — it is not a recommendation to replicate. All trading and investing involve significant risk of loss. Past performance is not indicative of future results. Always consult a licensed financial adviser before making any investment decisions. The creator of this site is not a registered financial adviser.
+      </div>
+      <div class="footer-copy">© 2026 CopySmarter · All rights reserved · Not financial advice</div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // ── Video filter
+  document.getElementById('filter-row').addEventListener('click', function(e) {
+    const btn = e.target.closest('.filter-btn');
+    if (!btn) return;
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const cat = btn.dataset.cat;
+    document.querySelectorAll('.video-card').forEach(card => {
+      card.classList.toggle('hidden', cat !== 'all' && card.dataset.cat !== cat);
+    });
+  });
+
+  // ── Method accordion
+  function toggleMethod(btn) {
+    const body = document.getElementById('method-body');
+    const open = body.classList.toggle('open');
+    btn.classList.toggle('open', open);
+    btn.setAttribute('aria-expanded', open);
+  }
+
+  // ── Chart.js challenge chart
+  window.addEventListener('load', function() {
+    const ctx = document.getElementById('challengeChart');
+    if (!ctx || typeof Chart === 'undefined') return;
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: ['Start (Feb)', 'Mar', 'Apr', 'May', 'Jun', 'Jul (Running)'],
+        datasets: [{
+          label: 'Portfolio Balance ($)',
+          data: [500, 527, 518.04, 561.03, 589.08, 624],
+          borderColor: '#16a34a',
+          backgroundColor: 'rgba(22,163,74,.08)',
+          borderWidth: 2.5,
+          pointBackgroundColor: '#16a34a',
+          pointRadius: 5,
+          pointHoverRadius: 7,
+          tension: 0.35,
+          fill: true,
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: ctx => ' $' + ctx.parsed.y.toFixed(2)
+            }
+          }
+        },
+        scales: {
+          y: {
+            min: 460,
+            grid: { color: '#f1f5f9' },
+            ticks: {
+              font: { size: 12 },
+              callback: v => '$' + v
+            }
+          },
+          x: {
+            grid: { display: false },
+            ticks: { font: { size: 11 } }
+          }
+        }
+      }
+    });
+  });
+
+  // ── Email signup mock
+  function handleSignup(e) {
+    e.preventDefault();
+    document.getElementById('signup-confirm').style.display = 'block';
+    e.target.style.display = 'none';
+  }
+</script>
+</body>
+</html>

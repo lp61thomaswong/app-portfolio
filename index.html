@@ -556,6 +556,19 @@ header {
 // ─────────────────────────────────────────
 const DEFAULTS = [
   {
+    id: 'house-duty',
+    name: 'HouseDuty',
+    description: 'A shared family chore roster built as an installable iPhone PWA. Weekly auto-rotating assignments, one-tap done, photo proof on chores that need it, and a reply thread per chore so a parent can accept the job or send it back with a reason.',
+    port: 3462,
+    status: 'live',
+    color: '#7BC67E',
+    icon: '🧹',
+    tech: ['HTML/JS', 'PWA', 'IndexedDB', 'Camera capture', 'localStorage'],
+    version: '0.1',
+    updated: '2026-09-06',
+    notes: 'v0.1 test build runs on-device only (localStorage + IndexedDB for photos). Supabase URL/anon key constants at the top of index.html switch on cross-phone sync. Photos downscale to 1280px JPEG in-browser; 8-week retention. Only parents see "Please redo".'
+  },
+  {
     id: 'thinking-pm',
     name: 'The Thinking Project Manager',
     description: 'Project management reimagined for the AI age: a structured, machine-readable PM knowledge base with original Thinking articles, a 25-topic Playbook in a signature 9-part structure, six AI-for-PM modes, an AI PM Pattern Library with prompts, a template Toolkit, field Cases, a Lab roadmap and an "Ask the PM" retrieval box.',

@@ -556,6 +556,19 @@ header {
 // ─────────────────────────────────────────
 const DEFAULTS = [
   {
+    id: 'learning-studio',
+    name: 'Learning Studio',
+    description: 'A single-user local learning portal with a searchable course library, lesson reader, completion tracking, per-lesson notes, custom courses and JSON backup import/export. Includes three original demo courses.',
+    port: 3463,
+    status: 'live',
+    color: '#A78BFA',
+    icon: '📚',
+    tech: ['HTML/CSS/JS', 'localStorage', 'JSON Backup', 'Node Tests'],
+    version: '1.0',
+    updated: '2026-10-18',
+    notes: 'Local prototype at C:/Users/twong/Projects/Learning-Portal-20261018. Start: npx serve "C:/Users/twong/Projects/Learning-Portal-20261018" -l tcp://127.0.0.1:3463 --no-clipboard. Open http://localhost:3463. Shared launch name: learning-studio. Standalone download: dist/Learning-Studio-20261018.html. Single-user, no accounts or cloud sync. Data is browser/origin-specific: export a backup before changing browser, hostname or port, then import it at the new address. Verified during build: 28 core tests and 12 browser checks.'
+  },
+  {
     id: 'agent-os',
     name: 'Agent OS',
     description: 'Mission Control dashboard from the AI Profit Room Agent OS pack: one hub with tabs for Claude, Hermes, Jarvis voice, video/thumbnail/SEO studios, pipeline, memory and more. Base for future custom workflows.',

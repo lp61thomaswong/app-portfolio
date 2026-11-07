@@ -556,6 +556,19 @@ header {
 // ─────────────────────────────────────────
 const DEFAULTS = [
   {
+    id: 'market-event-calendar',
+    name: 'Market Event Calendar',
+    description: 'Source-linked seven-day watchlist for AMAT, TSM, MSFT and INTC: earnings, company events and US economic calendars. Melbourne times, dated reports, source-coverage warnings and a replaceable data-provider design.',
+    port: null,
+    status: 'in-progress',
+    color: '#14B8A6',
+    icon: '🗓️',
+    tech: ['Python', 'Free Calendar APIs', 'Official Sources', 'HTML Reports', 'No-LLM Collection'],
+    version: '0.9',
+    updated: '2026-11-07',
+    notes: 'Pre-release script-based tool: C:/Users/twong/AppData/Local/hermes/integrations/market-event-calendar-20261107. Run manually: python cron_entry.py. Verified keyed report: 2026-11-07 17:10 Melbourne; 175 tests passed. Read the current manual report at http://localhost:8899/market-calendar-latest.html using the existing safe report server (no dedicated app port). Historical reports remain dated and immutable under data/verified/runs. Independent Codex CLI review is blocked by expired sign-in; automatic daily refresh is NOT enabled. Credentials stay outside the app and are never published.'
+  },
+  {
     id: 'learning-studio',
     name: 'Learning Studio',
     description: 'A single-user local learning portal with a searchable course library, lesson reader, completion tracking, per-lesson notes, custom courses and JSON backup import/export. Includes three original demo courses.',
